@@ -10,8 +10,13 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import "./css/Checkout.css";
 
-const API_URL = "http://localhost:5000/api";
-const SERVER_URL = "http://localhost:5000";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+const SERVER_URL =
+  import.meta.env.VITE_API_URL
+    ? import.meta.env.VITE_API_URL.replace("/api", "")
+    : "http://localhost:5000";
 
 const FALLBACK_IMAGE =
   "data:image/svg+xml;charset=UTF-8," +
