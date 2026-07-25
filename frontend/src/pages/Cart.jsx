@@ -36,6 +36,8 @@ function Cart() {
     50 - cartTotal
   );
 
+const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
+
 const getImageUrl = (product) => {
   const image =
     product.images?.[0]?.url ||
@@ -46,11 +48,19 @@ const getImageUrl = (product) => {
     return "https://placehold.co/700x700/17120d/f5b522?text=BeePositive";
   }
 
-  if (image.startsWith("http")) {
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("data:")
+  ) {
     return image;
   }
 
-  return `http://localhost:5000${image.startsWith("/") ? "" : "/"}${image}`;
+  if (image.startsWith("/")) {
+    return `${SERVER_URL}${image}`;
+  }
+
+  return `${SERVER_URL}/${image}`;
 };
 
   if (cartItems.length === 0) {
