@@ -1,5 +1,6 @@
 import {
   Bell,
+  Menu,
   Search,
   UserCircle2,
   X,
@@ -25,6 +26,9 @@ function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const audioRef = useRef(null);
+
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
 
   const [notifications, setNotifications] =
     useState([]);
@@ -70,35 +74,23 @@ function AdminLayout() {
     };
 
     const handleConnectError = (error) => {
-      console.error(
-        "Socket connection error:",
-        error.message
-      );
+      console.error(error.message);
     };
 
     const handleNewOrder = (order) => {
-      console.log(
-        "New order notification received:",
-        order
-      );
-
       const notification = {
         id: `${order._id}-${Date.now()}`,
         orderId: order._id,
         title: "New order received",
-
         message: `${
           order.customerName || "A customer"
         } placed order #${
           order.orderNumber || ""
         }.`,
-
         total: order.total || 0,
-
         createdAt:
           order.createdAt ||
           new Date().toISOString(),
-
         read: false,
       };
 
@@ -107,18 +99,9 @@ function AdminLayout() {
         ...current,
       ]);
 
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-
-        audioRef.current
-          .play()
-          .catch((error) => {
-            console.warn(
-              "Notification sound blocked:",
-              error.message
-            );
-          });
-      }
+      audioRef.current
+        ?.play()
+        .catch(() => {});
     };
 
     socket.on("connect", handleConnect);
@@ -136,12 +119,10 @@ function AdminLayout() {
 
     return () => {
       socket.off("connect", handleConnect);
-
       socket.off(
         "connect_error",
         handleConnectError
       );
-
       socket.off(
         "new-order",
         handleNewOrder
@@ -187,9 +168,35 @@ function AdminLayout() {
 
   return (
     <div className="admin-page">
-      <AdminSidebar />
+      <AdminSidebar
+        isOpen={sidebarOpen}
+        onClose={() =>
+          setSidebarOpen(false)
+        }
+      />
 
       <main className="admin-content">
+        {/* Mobile Topbar */}
+
+        <header className="admin-mobile-topbar">
+          <button
+            type="button"
+            className="admin-mobile-menu-button"
+            onClick={() =>
+              setSidebarOpen(true)
+            }
+          >
+            <Menu size={22} />
+          </button>
+
+          <div>
+            <strong>BeePositive</strong>
+            <span>{pageTitle}</span>
+          </div>
+        </header>
+
+        {/* Desktop Topbar */}
+
         <header className="admin-topbar">
           <div>
             <h1>{pageTitle}</h1>
@@ -200,7 +207,6 @@ function AdminLayout() {
             <button
               type="button"
               className="admin-icon-button"
-              aria-label="Search"
             >
               <Search size={20} />
             </button>
@@ -209,7 +215,6 @@ function AdminLayout() {
               <button
                 type="button"
                 className="admin-icon-button admin-notification-button"
-                aria-label="Notifications"
                 onClick={() =>
                   setIsNotificationOpen(
                     (current) => !current
@@ -238,9 +243,7 @@ function AdminLayout() {
                     </div>
 
                     <button
-                      type="button"
                       className="admin-notification-close"
-                      aria-label="Close notifications"
                       onClick={() =>
                         setIsNotificationOpen(
                           false
@@ -251,14 +254,15 @@ function AdminLayout() {
                     </button>
                   </div>
 
-                  {notifications.length > 0 ? (
+                  {notifications.length ? (
                     <>
                       <div className="admin-notification-list">
                         {notifications.map(
                           (notification) => (
                             <button
-                              type="button"
-                              key={notification.id}
+                              key={
+                                notification.id
+                              }
                               className={`admin-notification-item ${
                                 notification.read
                                   ? "read"
@@ -289,7 +293,9 @@ function AdminLayout() {
                                   $
                                   {Number(
                                     notification.total
-                                  ).toFixed(2)}
+                                  ).toFixed(
+                                    2
+                                  )}
                                 </small>
                               </div>
                             </button>
@@ -299,7 +305,6 @@ function AdminLayout() {
 
                       <div className="admin-notification-footer">
                         <button
-                          type="button"
                           onClick={
                             markAllAsRead
                           }
@@ -308,7 +313,6 @@ function AdminLayout() {
                         </button>
 
                         <button
-                          type="button"
                           onClick={
                             clearNotifications
                           }
@@ -320,6 +324,7 @@ function AdminLayout() {
                   ) : (
                     <div className="admin-notification-empty">
                       <Bell size={30} />
+
                       <p>
                         No notifications yet.
                       </p>
