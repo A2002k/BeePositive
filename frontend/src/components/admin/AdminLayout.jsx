@@ -177,175 +177,133 @@ function AdminLayout() {
 
       <main className="admin-content">
         {/* Mobile Topbar */}
+<header className="admin-mobile-topbar">
+  <button
+    type="button"
+    className="admin-mobile-menu-button"
+    aria-label="Open admin menu"
+    onClick={() => setSidebarOpen(true)}
+  >
+    <Menu size={22} />
+  </button>
 
-        <header className="admin-mobile-topbar">
-          <button
-            type="button"
-            className="admin-mobile-menu-button"
-            onClick={() =>
-              setSidebarOpen(true)
-            }
-          >
-            <Menu size={22} />
-          </button>
+  <div className="admin-mobile-title">
+    <strong>BeePositive</strong>
+    <span>{pageTitle}</span>
+  </div>
 
-          <div>
-            <strong>BeePositive</strong>
-            <span>{pageTitle}</span>
-          </div>
-        </header>
+  <div className="admin-mobile-actions">
+    <div className="admin-notification-wrapper">
+      <button
+        type="button"
+        className="admin-icon-button admin-notification-button"
+        aria-label="Notifications"
+        onClick={() =>
+          setIsNotificationOpen(
+            (current) => !current
+          )
+        }
+      >
+        <Bell size={20} />
 
-        {/* Desktop Topbar */}
+        {unreadCount > 0 && (
+          <span className="admin-notification-badge">
+            {unreadCount > 9
+              ? "9+"
+              : unreadCount}
+          </span>
+        )}
+      </button>
 
-        <header className="admin-topbar">
-          <div>
-            <h1>{pageTitle}</h1>
-            <p>{today}</p>
-          </div>
+      {isNotificationOpen && (
+        <div className="admin-notification-dropdown">
+          <div className="admin-notification-header">
+            <div>
+              <h3>Notifications</h3>
+              <p>{unreadCount} unread</p>
+            </div>
 
-          <div className="admin-topbar-actions">
             <button
               type="button"
-              className="admin-icon-button"
+              className="admin-notification-close"
+              aria-label="Close notifications"
+              onClick={() =>
+                setIsNotificationOpen(false)
+              }
             >
-              <Search size={20} />
+              <X size={18} />
             </button>
+          </div>
 
-            <div className="admin-notification-wrapper">
-              <button
-                type="button"
-                className="admin-icon-button admin-notification-button"
-                onClick={() =>
-                  setIsNotificationOpen(
-                    (current) => !current
-                  )
-                }
-              >
-                <Bell size={20} />
-
-                {unreadCount > 0 && (
-                  <span className="admin-notification-badge">
-                    {unreadCount > 9
-                      ? "9+"
-                      : unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {isNotificationOpen && (
-                <div className="admin-notification-dropdown">
-                  <div className="admin-notification-header">
-                    <div>
-                      <h3>Notifications</h3>
-                      <p>
-                        {unreadCount} unread
-                      </p>
-                    </div>
-
+          {notifications.length > 0 ? (
+            <>
+              <div className="admin-notification-list">
+                {notifications.map(
+                  (notification) => (
                     <button
-                      className="admin-notification-close"
+                      type="button"
+                      key={notification.id}
+                      className={`admin-notification-item ${
+                        notification.read
+                          ? "read"
+                          : "unread"
+                      }`}
                       onClick={() =>
-                        setIsNotificationOpen(
-                          false
+                        handleNotificationClick(
+                          notification
                         )
                       }
                     >
-                      <X size={18} />
+                      <span className="admin-notification-dot" />
+
+                      <div>
+                        <strong>
+                          {notification.title}
+                        </strong>
+
+                        <p>
+                          {notification.message}
+                        </p>
+
+                        <small>
+                          $
+                          {Number(
+                            notification.total
+                          ).toFixed(2)}
+                        </small>
+                      </div>
                     </button>
-                  </div>
-
-                  {notifications.length ? (
-                    <>
-                      <div className="admin-notification-list">
-                        {notifications.map(
-                          (notification) => (
-                            <button
-                              key={
-                                notification.id
-                              }
-                              className={`admin-notification-item ${
-                                notification.read
-                                  ? "read"
-                                  : "unread"
-                              }`}
-                              onClick={() =>
-                                handleNotificationClick(
-                                  notification
-                                )
-                              }
-                            >
-                              <span className="admin-notification-dot" />
-
-                              <div>
-                                <strong>
-                                  {
-                                    notification.title
-                                  }
-                                </strong>
-
-                                <p>
-                                  {
-                                    notification.message
-                                  }
-                                </p>
-
-                                <small>
-                                  $
-                                  {Number(
-                                    notification.total
-                                  ).toFixed(
-                                    2
-                                  )}
-                                </small>
-                              </div>
-                            </button>
-                          )
-                        )}
-                      </div>
-
-                      <div className="admin-notification-footer">
-                        <button
-                          onClick={
-                            markAllAsRead
-                          }
-                        >
-                          Mark all as read
-                        </button>
-
-                        <button
-                          onClick={
-                            clearNotifications
-                          }
-                        >
-                          Clear all
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="admin-notification-empty">
-                      <Bell size={30} />
-
-                      <p>
-                        No notifications yet.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="admin-profile">
-              <UserCircle2 size={40} />
-
-              <div>
-                <strong>Anthony</strong>
-                <span>
-                  Administrator
-                </span>
+                  )
+                )}
               </div>
+
+              <div className="admin-notification-footer">
+                <button
+                  type="button"
+                  onClick={markAllAsRead}
+                >
+                  Mark all as read
+                </button>
+
+                <button
+                  type="button"
+                  onClick={clearNotifications}
+                >
+                  Clear all
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="admin-notification-empty">
+              <Bell size={30} />
+              <p>No notifications yet.</p>
             </div>
-          </div>
-        </header>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</header>
 
         <Outlet />
       </main>
