@@ -29,6 +29,11 @@ import "./css/AdminOrders.css";
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
+  const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
+
+const PRODUCT_PLACEHOLDER =
+  "/assets/images/product-placeholder.png";
+
 const STATUS_OPTIONS = [
   "pending",
   "confirmed",
@@ -134,20 +139,44 @@ const getItemName = (item) =>
   item.name || item.product?.name || "Honey Product";
 
 const getItemImage = (item) => {
+  const firstImage =
+    item?.product?.images?.[0] ||
+    item?.images?.[0];
+
   const image =
-    item.image ||
-    item.product?.image ||
-    item.product?.images?.[0];
+    item?.image ||
+    item?.imageUrl ||
+    item?.product?.image ||
+    item?.product?.imageUrl ||
+    (typeof firstImage === "string"
+      ? firstImage
+      : firstImage?.url ||
+        firstImage?.imageUrl ||
+        firstImage?.secure_url) ||
+    "";
 
   if (!image) {
-    return "/assets/images/product-placeholder.png";
+    return PRODUCT_PLACEHOLDER;
   }
 
-  if (image.startsWith("http")) {
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("data:") ||
+    image.startsWith("blob:")
+  ) {
     return image;
   }
 
-  return `http://localhost:5000${image}`;
+  if (image.startsWith("/")) {
+    return `${SERVER_URL}${image}`;
+  }
+
+  if (image.startsWith("uploads/")) {
+    return `${SERVER_URL}/${image}`;
+  }
+
+  return `${SERVER_URL}/uploads/${image}`;
 };
 
 function StatusBadge({ status = "pending" }) {
@@ -295,10 +324,10 @@ function OrderDetailsModal({
                       <img
                         src={getItemImage(item)}
                         alt={getItemName(item)}
-                        onError={(event) => {
-                          event.currentTarget.src =
-                            "/assets/images/product-placeholder.png";
-                        }}
+                       onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = PRODUCT_PLACEHOLDER;
+                    }}
                       />
 
                       <div className="admin-order-product__information">
@@ -1065,8 +1094,8 @@ function AdminOrders() {
                                       src={getItemImage(item)}
                                       alt=""
                                       onError={(event) => {
-                                        event.currentTarget.src =
-                                          "/assets/images/product-placeholder.png";
+                                        event.currentTarget.onerror = null;
+                                        event.currentTarget.src = PRODUCT_PLACEHOLDER;
                                       }}
                                     />
                                   ),

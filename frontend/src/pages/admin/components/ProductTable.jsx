@@ -6,23 +6,51 @@ import {
   Trash2,
 } from "lucide-react";
 
-const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL ||
-  "http://localhost:5000";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+
+const BACKEND_URL = API_URL.replace(/\/api\/?$/, "");
+
+const PRODUCT_PLACEHOLDER =
+  "/assets/images/product-placeholder.png";
 
 const getProductImage = (product) => {
+  const firstImage = product?.images?.[0];
+
   const imageUrl =
-    product.images?.[0]?.url;
+    typeof firstImage === "string"
+      ? firstImage
+      : firstImage?.url ||
+        firstImage?.imageUrl ||
+        firstImage?.secure_url ||
+        product?.image ||
+        product?.imageUrl ||
+        product?.thumbnail ||
+        "";
 
   if (!imageUrl) {
-    return "/assets/images/product-placeholder.png";
+    return PRODUCT_PLACEHOLDER;
   }
 
-  if (imageUrl.startsWith("http")) {
+  if (
+    imageUrl.startsWith("http://") ||
+    imageUrl.startsWith("https://") ||
+    imageUrl.startsWith("data:") ||
+    imageUrl.startsWith("blob:")
+  ) {
     return imageUrl;
   }
 
-  return `${BACKEND_URL}${imageUrl}`;
+  if (imageUrl.startsWith("/")) {
+    return `${BACKEND_URL}${imageUrl}`;
+  }
+
+  if (imageUrl.startsWith("uploads/")) {
+    return `${BACKEND_URL}/${imageUrl}`;
+  }
+
+  return `${BACKEND_URL}/uploads/${imageUrl}`;
 };
 
 const formatPrice = (price) => {
@@ -61,18 +89,18 @@ function ProductTable({
                     src={getProductImage(product)}
                     alt={
                       product.images?.[0]?.alt ||
-                      product.name
+                      product.name ||
+                      "BeePositive product"
                     }
                     onError={(event) => {
+                      event.currentTarget.onerror = null;
                       event.currentTarget.src =
-                        "/assets/images/product-placeholder.png";
+                        PRODUCT_PLACEHOLDER;
                     }}
                   />
 
                   <div>
-                    <strong>
-                      {product.name}
-                    </strong>
+                    <strong>{product.name}</strong>
 
                     <span>{product.slug}</span>
                   </div>
@@ -145,9 +173,7 @@ function ProductTable({
                 <div className="admin-product-actions">
                   <button
                     type="button"
-                    onClick={() =>
-                      onEdit(product)
-                    }
+                    onClick={() => onEdit(product)}
                     aria-label={`Edit ${product.name}`}
                   >
                     <Edit3 size={17} />
@@ -156,9 +182,7 @@ function ProductTable({
                   <button
                     type="button"
                     className="admin-product-delete-button"
-                    onClick={() =>
-                      onDelete(product)
-                    }
+                    onClick={() => onDelete(product)}
                     aria-label={`Delete ${product.name}`}
                   >
                     <Trash2 size={17} />

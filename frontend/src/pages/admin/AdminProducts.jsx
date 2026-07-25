@@ -563,11 +563,12 @@ useEffect(() => {
               </button>
             </div>
           ) : (
-            <ProductTable
-              products={filteredProducts}
-              onEdit={openEditModal}
-              onDelete={setProductToDelete}
-            />
+            
+              <ProductTable
+                products={filteredProducts}
+                onEdit={openEditModal}
+                onDelete={setProductToDelete}
+              />
           )}
         </section>
       </div>
