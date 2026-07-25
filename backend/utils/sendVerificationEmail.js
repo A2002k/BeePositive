@@ -1,33 +1,20 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export async function sendVerificationEmail({
   user,
   verificationUrl,
 }) {
-  const emailUser =
-    process.env.EMAIL_USER?.trim();
+  const resendApiKey =
+    process.env.RESEND_API_KEY?.trim();
 
-  const emailPassword =
-    process.env.EMAIL_PASSWORD
-      ?.replace(/\s/g, "")
-      .trim();
-
-  if (!emailUser) {
+  if (!resendApiKey) {
     throw new Error(
-      "EMAIL_USER is missing from the backend .env file."
-    );
-  }
-
-  if (!emailPassword) {
-    throw new Error(
-      "EMAIL_PASSWORD is missing from the backend .env file."
+      "RESEND_API_KEY is missing from the backend environment variables."
     );
   }
 
   if (!user?.email) {
-    throw new Error(
-      "User email is missing."
-    );
+    throw new Error("User email is missing.");
   }
 
   if (!verificationUrl) {
@@ -36,21 +23,15 @@ export async function sendVerificationEmail({
     );
   }
 
-  const transporter =
-    nodemailer.createTransport({
-      service: "gmail",
+  const resend = new Resend(resendApiKey);
 
-      auth: {
-        user: emailUser,
-        pass: emailPassword,
-      },
-    });
+  const { data, error } =
+    await resend.emails.send({
+      from:
+        process.env.RESEND_FROM_EMAIL ||
+        "BeePositive <onboarding@resend.dev>",
 
-  const result =
-    await transporter.sendMail({
-      from: `"BeePositive" <${emailUser}>`,
-
-      to: user.email,
+      to: [user.email],
 
       subject:
         "Verify your BeePositive email address",
@@ -165,10 +146,22 @@ export async function sendVerificationEmail({
       `,
     });
 
+  if (error) {
+    console.error(
+      "Resend verification email error:",
+      error
+    );
+
+    throw new Error(
+      error.message ||
+        "Unable to send verification email."
+    );
+  }
+
   console.log(
     "Verification email sent successfully:",
-    result.messageId
+    data?.id
   );
 
-  return result;
+  return data;
 }
