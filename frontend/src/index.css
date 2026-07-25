@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Manrope", Arial, sans-serif;
+  color: #f8f3e8;
+  background: #100b06;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #100b06;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.font-serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
