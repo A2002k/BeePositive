@@ -17,6 +17,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { socket } from "../../socket";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+
 function AdminDashboard() {
   const { token } = useAuth();
 
@@ -44,13 +48,13 @@ function AdminDashboard() {
         setError("");
 
         const response = await fetch(
-          "http://localhost:5000/api/orders/admin",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  `${API_URL}/orders/admin`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
         const data = await response.json();
 
