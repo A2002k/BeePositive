@@ -2,11 +2,11 @@
   "name": "beepositive-backend",
   "version": "1.0.0",
   "description": "Backend API for the BeePositive honey store",
-  "main": "app.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "beepositive",
