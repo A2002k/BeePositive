@@ -36,15 +36,19 @@ export async function sendVerificationEmail({
     );
   }
 
-  const transporter =
-    nodemailer.createTransport({
-      service: "gmail",
+const transporter =
+  nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    family: 4,
 
-      auth: {
-        user: emailUser,
-        pass: emailPassword,
-      },
-    });
+    auth: {
+      user: emailUser,
+      pass: emailPassword,
+    },
+  });
 
   const result =
     await transporter.sendMail({
