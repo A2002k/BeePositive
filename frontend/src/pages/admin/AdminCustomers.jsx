@@ -54,8 +54,12 @@ function AdminCustomers() {
 
         setError("");
 
+        const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+
         const response = await fetch(
-          "http://localhost:5000/api/users/admin/customers",
+          `${API_URL}/users/admin/customers`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
